@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+bins="deployrepo retrievedir"
+dir="/usr/local/bin"
+
+chown root:root "${dir}"
+
+for b in ${bins}
+do
+  path=${dir}/${b}
+  chown root:root "${path}"
+  chmod 0555 "${path}"
+done

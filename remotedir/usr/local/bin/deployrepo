@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+
+target_host=$1
+[ -z "${target_host}" ] && target_host=node10
+
+target_dir=$2
+[ -z "${target_dir}" ] && target_dir=${USER}/
+
+# if $3 is non empty, remove the remote
+remrem=$3
+
+tmp_dir=/tmp/deploy_git_repo
+
+rm -rf "${tmp_dir}"
+mkdir -p "${tmp_dir}"
+
+git_root_dir=$(git rev-parse --show-toplevel)
+git_dir_name=$(basename "${git_root_dir}")
+
+(
+  cd "${tmp_dir}"
+
+  # Copy the repo locally
+  cp -a "${git_root_dir}" .
+  (
+    cd "${git_dir_name}"
+    git clean -fdxq
+    git submodule foreach --recursive git clean -fdxq
+    if [ -n "${remrem}" ]
+    then
+      git submodule foreach --recursive git remote remove origin
+      git remote remove origin
+    fi
+  )
+
+  # Deploy the copy on the target host
+  # shellcheck disable=SC2029
+  rsync -azPv "${git_dir_name}" ${target_host}:"${target_dir}"
+)

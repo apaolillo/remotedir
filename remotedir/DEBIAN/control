@@ -1,0 +1,7 @@
+Package: remotedir
+Version: 0.0.1
+Maintainer: Antonio Paolillo
+Architecture: all
+Description: Tools to exchange git repositories and directories over ssh via rsync
+Depends: git,rsync
+
